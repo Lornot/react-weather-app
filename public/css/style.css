@@ -1,0 +1,37 @@
+.temperature {
+    font-size:80px;
+}
+
+.fewDaysForecast {
+    background-color: #fff
+}
+
+/*.temperature_block > img {*/
+    /*float: left;*/
+/*}*/
+
+.temperature_block  {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+}
+
+.wind_block  {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: flex-start;
+}
+
+.fewDaysForecast > div {
+     display: flex;
+     flex-direction: row;
+     justify-content: space-around;
+     align-items: center;
+}
+
+.fewDaysForecast > div:nth-child(2n + 1) {
+    background: #ebebeb;
+}
+

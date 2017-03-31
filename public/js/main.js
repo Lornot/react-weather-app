@@ -20918,75 +20918,230 @@ module.exports = require('./lib/React');
 
 },{}],179:[function(require,module,exports){
 var React = require('react');
-var ListItem = require('./ListItem.jsx');
-var HTTP = require('../services/httpservice');
+var SimpleDayForecast = require('./SimpleDayForecast.jsx');
 
-var List = React.createClass({
-    displayName: 'List',
+var ForecastBlock = React.createClass({
+    displayName: 'ForecastBlock',
 
-    getInitialState: function () {
-        return { ingredients: [] };
-    },
-    componentWillMount: function () {
-        HTTP.get('/ingredients').then(function (data) {
-            console.log("DATA: ", data);
-            this.setState({ ingredients: data });
-        }.bind(this));
-    },
+
     render: function () {
-        var listItems = this.state.ingredients.map(function (item) {
-            return React.createElement(ListItem, { key: item.id, ingredient: item.text });
+        var forecastStyle = {
+            backgroundColor: this.props.color
+        };
+
+        var ForecastsSimpleDaysForecasts = this.props.forecasts.map(function (simple_forecast) {
+
+            var dateArr = new Date(simple_forecast.dt * 1000).toString().split(' ').splice(1, 3);
+            var time_string = dateArr[1] + ' ' + dateArr[0];
+
+            console.log(time_string);
+
+            return React.createElement(SimpleDayForecast, { icon: 'http://openweathermap.org/img/w/' + simple_forecast.weather[0].icon + '.png', date: time_string, min_temperature: Math.round(simple_forecast.temp.min), max_temperature: Math.round(simple_forecast.temp.max) });
         });
 
         return React.createElement(
-            'ul',
-            null,
-            listItems
-        );
-    }
-});
-
-module.exports = List;
-
-},{"../services/httpservice":182,"./ListItem.jsx":180,"react":177}],180:[function(require,module,exports){
-var React = require('react');
-
-var ListItem = React.createClass({
-    displayName: 'ListItem',
-
-    render: function () {
-        return React.createElement(
-            'li',
-            null,
+            'div',
+            { style: forecastStyle, className: 'col-md-4 forecast_block' },
             React.createElement(
-                'h4',
-                null,
-                this.props.ingredient
+                'h1',
+                { className: 'city' },
+                this.props.city
+            ),
+            React.createElement(
+                'p',
+                { className: 'time' },
+                this.props.time
+            ),
+            React.createElement(
+                'div',
+                { className: 'views' },
+                React.createElement(
+                    'div',
+                    { className: 'temperature_block' },
+                    React.createElement('img', { src: this.props.icon, alt: '' }),
+                    React.createElement(
+                        'p',
+                        { className: 'temperature' },
+                        this.props.temperature,
+                        '\xB0'
+                    )
+                ),
+                React.createElement(
+                    'div',
+                    { className: 'wind_block' },
+                    React.createElement(
+                        'div',
+                        null,
+                        React.createElement('img', { src: this.props.wind_direction_icon, alt: 'Wind Direction' }),
+                        React.createElement(
+                            'p',
+                            { className: 'wind_direction' },
+                            this.props.wind_direction_text
+                        )
+                    ),
+                    React.createElement(
+                        'div',
+                        null,
+                        React.createElement('img', { src: this.props.wind_stength_icon, alt: 'Wind Strength' }),
+                        React.createElement(
+                            'p',
+                            { className: 'wind_strength_text' },
+                            this.props.wind_strength_text
+                        )
+                    )
+                )
+            ),
+            React.createElement(
+                'div',
+                { className: 'fewDaysForecast' },
+                ForecastsSimpleDaysForecasts
             )
         );
     }
 });
 
-module.exports = ListItem;
+module.exports = ForecastBlock;
 
-},{"react":177}],181:[function(require,module,exports){
+},{"./SimpleDayForecast.jsx":181,"react":177}],180:[function(require,module,exports){
+var React = require('react');
+var ForecastBlock = require('./ForecastBlock.jsx');
+var SimpleDayForecast = require('./SimpleDayForecast.jsx');
+var HTTP = require('../services/httpservice');
+
+var ForecastsList = React.createClass({
+    displayName: 'ForecastsList',
+
+    getInitialState: function () {
+        return {
+            forecasts: [{
+                'city': 'London',
+                'time': 'today 29',
+                'icon': '',
+                'temperature': '26',
+                'wind_direction_icon': '',
+                'wind_direction_text': 'North East',
+                'wind_strength_icon': '',
+                'wind_strength_text': '7 MPH',
+                'dates': [{
+                    'date': '26 August',
+                    'icon': '',
+                    'temperature': '12 / 26'
+                }, {
+                    'date': '27 August',
+                    'icon': '',
+                    'temperature': '12 / 26'
+                }, {
+                    'date': '28 August',
+                    'icon': '',
+                    'temperature': '12 / 26'
+                }]
+            }],
+            apiForecasts: []
+        };
+    },
+    componentWillMount: function () {
+        var cities = ['Kiev', 'Lviv', 'Odessa'];
+
+        cities.forEach(function (city) {
+            HTTP.get(city).then(function (data) {
+                var Array = this.state.apiForecasts;
+
+                data.color = "#" + ((1 << 24) * Math.random() | 0).toString(16);
+                Array.push(data);
+                var new_forecasts = { apiForecasts: Array };
+                this.setState(new_forecasts);
+            }.bind(this));
+        }.bind(this));
+    },
+    render: function () {
+        var dateArr = new Date().toString().split(' ').splice(1, 3);
+        var time_string = 'TODAY ' + dateArr[1] + ' ' + dateArr[0].toUpperCase() + ' ' + dateArr[2];
+        var ForcastsList = this.state.apiForecasts.map(function (forecast) {
+            console.log(forecast);
+
+            function degToCompass(num) {
+                var val = Math.floor(num / 22.5 + 0.5);
+                var arr = ["North", "North North East", "North East", "East North East", "East", "East South East", "South East", "South South East ", "South", "South South West", "South West", "West South West", "West", "West North West", "North West", "North North West"];
+                return arr[val % 16];
+            }
+
+            var wind_direction_text = degToCompass(forecast.list[0].deg);
+
+            return React.createElement(
+                'div',
+                null,
+                React.createElement(ForecastBlock, { color: forecast.color, city: forecast.city.name, time: time_string, icon: 'http://openweathermap.org/img/w/' + forecast.list[0].weather[0].icon + '.png', wind_direction_icon: 'images/windsock.png', wind_stength_icon: 'images/wind.png', temperature: Math.round(forecast.list[0].temp.day), wind_strength_text: forecast.list[0].speed + 'MPH', wind_direction_text: wind_direction_text, forecasts: forecast.list })
+            );
+        });
+        return React.createElement(
+            'div',
+            null,
+            React.createElement(
+                'div',
+                { className: 'container' },
+                React.createElement(
+                    'div',
+                    { className: 'row' },
+                    ForcastsList
+                )
+            )
+        );
+    }
+});
+
+module.exports = ForecastsList;
+
+},{"../services/httpservice":183,"./ForecastBlock.jsx":179,"./SimpleDayForecast.jsx":181,"react":177}],181:[function(require,module,exports){
+var React = require('react');
+
+var SimpleDayForecast = React.createClass({
+    displayName: "SimpleDayForecast",
+
+
+    render: function () {
+
+        return React.createElement(
+            "div",
+            null,
+            React.createElement(
+                "div",
+                { className: "date" },
+                this.props.date
+            ),
+            React.createElement("img", { src: this.props.icon, alt: "Weather" }),
+            React.createElement(
+                "div",
+                { className: "min_max_temperature" },
+                this.props.min_temperature,
+                "\xB0 / ",
+                this.props.max_temperature,
+                "\xB0"
+            )
+        );
+    }
+});
+
+module.exports = SimpleDayForecast;
+
+},{"react":177}],182:[function(require,module,exports){
 var React = require('react');
 var ReactDOM = require('react-dom');
-var List = require('./components/List.jsx');
+//var List = require('./components/List.jsx');
+var ForecastsList = require('./components/ForecastsList.jsx');
 
-ReactDOM.render(React.createElement(List, null), document.getElementById('ingredients'));
+ReactDOM.render(React.createElement(ForecastsList, null), document.getElementById('forecasts'));
 
-},{"./components/List.jsx":179,"react":177,"react-dom":26}],182:[function(require,module,exports){
+},{"./components/ForecastsList.jsx":180,"react":177,"react-dom":26}],183:[function(require,module,exports){
 var Fetch = require('whatwg-fetch');
-var baseUrl = 'http://localhost:6069';
 
-var uglypuppies = '/uglypuppies';
+var APIKey = 'f2575f5951cb451e406e289a49292058';
+var baseUrl = 'http://api.openweathermap.org/data/2.5/forecast/daily?units=metric&cnt=5&appid=' + APIKey;
 
 var service = {
-    get: function (url) {
-        console.log('making request');
-        return fetch(baseUrl + url).then(function (response) {
-            console.log("RES: ", response);
+    get: function (city) {
+        //console.log('making request');
+        return fetch(baseUrl + '&q=' + city + ',ua').then(function (response) {
+            //console.log("RES: ", response); 
             return response.json();
         });
     }
@@ -20994,4 +21149,4 @@ var service = {
 
 module.exports = service;
 
-},{"whatwg-fetch":178}]},{},[181]);
+},{"whatwg-fetch":178}]},{},[182]);
