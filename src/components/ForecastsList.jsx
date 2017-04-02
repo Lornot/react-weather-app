@@ -7,35 +7,6 @@ var HTTP = require('../services/httpservice');
 var ForecastsList = React.createClass({
     getInitialState: function () {
         return {
-            forecasts: [
-                {
-                    'city': 'London',
-                    'time': 'today 29',
-                    'icon': '',
-                    'temperature' : '26',
-                    'wind_direction_icon' : '',
-                    'wind_direction_text' : 'North East',
-                    'wind_strength_icon' : '',
-                    'wind_strength_text' : '7 MPH',
-                    'dates': [
-                        {
-                            'date': '26 August',
-                            'icon': '',
-                            'temperature': '12 / 26'
-                        },
-                        {
-                            'date': '27 August',
-                            'icon': '',
-                            'temperature': '12 / 26'
-                        },
-                        {
-                            'date': '28 August',
-                            'icon': '',
-                            'temperature': '12 / 26'
-                        }
-                    ]
-                }
-            ],
             apiForecasts: []
         };
     },
@@ -76,7 +47,7 @@ var ForecastsList = React.createClass({
 
             return (
                 <div>
-                    <ForecastBlock color={forecast.color} city={forecast.city.name} time={time_string}  icon={'http://openweathermap.org/img/w/'+forecast.list[0].weather[0].icon+'.png'} wind_direction_icon="images/windsock.png"  wind_stength_icon="images/wind.png" temperature={Math.round(forecast.list[0].temp.day)} wind_strength_text={forecast.list[0].speed + 'MPH'} wind_direction_text={wind_direction_text} forecasts={forecast.list} />
+                    <ForecastBlock color={forecast.color} city={forecast.city.name} time={time_string}  icon={'http://openweathermap.org/img/w/'+forecast.list[0].weather[0].icon+'.png'} wind_direction_icon="images/windsock.png"  wind_stength_icon="images/wind.png" temperature={Math.round(forecast.list[0].temp.day)} wind_strength_text={forecast.list[0].speed + 'MPH'} wind_direction_text={wind_direction_text} forecasts={forecast.list.slice(1)} />
 
                 </div>
             )

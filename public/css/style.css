@@ -10,6 +10,10 @@
     /*float: left;*/
 /*}*/
 
+.forecast_block {
+    padding: 10px;
+}
+
 .temperature_block  {
     display: flex;
     flex-direction: row;
@@ -17,11 +21,20 @@
     align-items: center;
 }
 
-.wind_block  {
+.temperature_block img {
+    width: 150px;
+    height: 150px;
+}
+
+.wind_block, .wind_block > div  {
     display: flex;
     flex-direction: row;
     justify-content: space-around;
     align-items: flex-start;
+}
+
+.wind_block > div img {
+    margin-right: 5px;
 }
 
 .fewDaysForecast > div {
